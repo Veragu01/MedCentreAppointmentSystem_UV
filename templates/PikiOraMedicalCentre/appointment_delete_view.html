@@ -1,0 +1,18 @@
+{% extends '../base.html' %}
+{% block title %}
+   Delete Appointment
+{% endblock %}
+{% block content %}
+    <h1>Delete Appointment</h1>
+        {% if user.is_authenticated %}
+            {% if user == appointment.patient or "Administrators" in user.groups.all|join:"," %}
+                <p>Are you sure you want to delete this appointment?</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <h2>{{ post.title }}</h2>
+                    <button class="btn btn-danger" type="submit">Delete</button>
+                    <a class="btn btn-secondary" href="{% url 'appointments' %}">Cancel</a>
+                </form>
+            {% endif %}
+        {% endif %}
+{% endblock %}

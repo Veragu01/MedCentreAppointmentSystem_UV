@@ -1,0 +1,56 @@
+{% extends '../base.html' %}
+{% block title %}
+    Create New Appointment
+{% endblock %}
+{% block content %}
+    {% if user.is_authenticated %}
+        {% if user == appointment.patient or "Administrators" in user.groups.all|join:"," %}
+            <h1 style="margin: 20px;">Update Appointment</h1>
+            <form style="margin-left: 20px;" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <table>{{ form.as_table }}</table>
+        {#        {{ form.as_p }}#}
+
+                <button style="margin-top: 20px;" class="btn btn-primary" type="submit">Update Booking</button>
+                <a style="margin-top: 20px;" class="btn btn-secondary" href="{% url 'appointment_details' appointment.pk %}">Cancel</a>
+            </form>
+            <script>
+                const doctorField = document.getElementById("id_doctor");
+                const dateField = document.getElementById("id_date");
+                const timeSlotField = document.getElementById("id_time_slot");
+
+                function loadTimeSlots() {
+                    const doctor = doctorField.value;
+                    const date = dateField.value;
+
+                    timeSlotField.innerHTML = '<option value="">---------</option>';
+
+                    if (!doctor || !date) {
+                        return;
+                    }
+
+                    fetch(
+                        `{% url 'available_time_slots' %}?doctor=${doctor}&date=${date}`
+                    )
+                    .then(response => response.json())
+                    .then(data => {
+                        data.time_slots.forEach(slot => {
+                            const option = document.createElement("option");
+                            option.value = slot.id;
+                            option.textContent = slot.label;
+                            timeSlotField.appendChild(option);
+                        });
+                    });
+                }
+
+                doctorField.addEventListener("change", loadTimeSlots);
+                dateField.addEventListener("change", loadTimeSlots);
+                loadTimeSlots()
+            </script>
+        {% endif %}
+    {% else %}
+        <p style="margin-left: 20px;">You are not logged in
+            <a href="{% url 'home' %}">Login</a>
+        </p>
+    {% endif %}
+{% endblock %}

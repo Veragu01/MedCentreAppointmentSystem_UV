@@ -1,0 +1,29 @@
+{% extends "../base.html" %}
+{% block title %}
+    Appointment Details
+{% endblock %}
+{% block content %}
+    {% if user.is_authenticated %}
+        {% if user == appointment.patient or "Administrators" in user.groups.all|join:"," %}
+            <h1 style="margin: 20px;">Appointment Details for  {{ object.patient }}</h1>
+            <div style="margin-left: 20px;">
+                <p>
+                    Appointment Reason: {{ object.reason }}
+                </p>
+                <p>
+                    Doctor: {{ object.doctor.first_name }} {{ object.doctor.last_name }}
+                </p>
+                <p>
+                    Timeslot: {{ object.time_slot.date }}; {{ object.time_slot.time }}
+                </p>
+                <button class="btn btn-primary" type="submit">
+                    <a class="nav-link active" aria-current="page" href="{% url 'appointment_update' appointment.pk %}">Edit</a>
+                </button>
+                <button class="btn btn-danger" type="submit">
+                    <a class="nav-link active" aria-current="page" href="{% url 'appointment_delete' appointment.pk %}">Delete</a>
+                </button>
+                <a style="margin-left: 20px;" class="btn btn-secondary" href="{% url 'appointments' %}">My Appointments</a>
+            </div>
+        {% endif %}
+    {% endif %}
+{% endblock %}

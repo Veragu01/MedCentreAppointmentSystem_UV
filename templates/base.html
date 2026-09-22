@@ -16,30 +16,57 @@
 <body>
     <header>
         <nav class="navbar navbar-expand-lg bg-body-tertiary">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">Navbar</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Home</a>
-          </li>
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{% url 'home' %}">Piki Ora</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                  <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
+                      <li class="nav-item">
+                          <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Home</a>
+                      </li>
+                      <li class="nav-item">
+                          <a class="nav-link active" aria-current="page" href="{% url 'appointments' %}">Appointments</a>
+                      </li>
+                      <li class="nav-item">
 
-      </ul>
-
-    </div>
-  </div>
-</nav>
-
-
+                      {#      if else for login/logout#}
+                          {% if not user.is_authenticated %}
+                              <li>
+                                  <li class="nav-item">
+                                  <a class="nav-link active" aria-current="page" href="{% url 'login' %}">Login</a>
+                              </li>
+                              <li>
+                                  <li class="nav-item">
+                                  <a class="nav-link active" aria-current="page" href="{% url 'register_form' %}">Register</a>
+                              </li>
+                          {% else %}
+                            {% if "Administrators" in user.groups.all|join:"," %}
+                              <li>
+                                  <li class="nav-item">
+                                  <a class="nav-link active" aria-current="page" href="{% url 'doctors' %}">Manage Doctors</a>
+                              </li>
+                            {% endif %}
+                              <li class="nav-item">
+                                  <form method="post" action="{% url 'logout' %}">
+                                      {% csrf_token %}
+                                      {{ user.first_name }} {{ user.last_name }}
+                                      <button class="btn btn-primary" type="submit">Logout</button>
+                                  </form>
+                              </li>
+                          {% endif %}
+                      </li>
+                  </ul>
+                </div>
+            </div>
+        </nav>
     </header>
     {% block content %}
     {% endblock %}
     <footer>
-        <p>Footer</p>
+        <p></p>
     </footer>
 </body>
 </html>
