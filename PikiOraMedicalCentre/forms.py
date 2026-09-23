@@ -3,7 +3,7 @@ from datetime import date
 from django import forms
 from django.contrib.auth.models import User
 
-from PikiOraMedicalCentre.models import Appointment, TimeSlot
+from PikiOraMedicalCentre.models import Appointment, TimeSlot, Profile
 
 
 # from PikiOraMedicalCentre.views import TimeSlot
@@ -74,8 +74,8 @@ class AppointmentUpdateForm(forms.ModelForm):
         return f"{doctor.first_name + " " + doctor.last_name}"
 
 class UserCreationForm(forms.ModelForm):
-    phone = forms.CharField(required=True, widget=forms.NumberInput(attrs={"class": "form-control"}))
-    address = forms.CharField(required=True, widget=forms.TextInput(attrs={"class": "form-control"}))
+    phone = forms.CharField(required=True, widget=forms.NumberInput(attrs={"class": "form-control", "style": "width: 75%"}))
+    address = forms.CharField(required=True, widget=forms.TextInput(attrs={"class": "form-control", "style": "width: 200%"}))
     class Meta:
         model = User
         fields = ['username', 'first_name', 'last_name', 'email', 'password']
@@ -83,7 +83,38 @@ class UserCreationForm(forms.ModelForm):
             'username': forms.TextInput(attrs={'class': 'form-control'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', "style": "width: 150%"}),
             'password': forms.PasswordInput(attrs={'class': 'form-control'}),
         }
-        
+        help_texts = {'username': None}
+
+
+class UserUpdateForm(forms.ModelForm):
+    phone = forms.CharField(required=True, widget=forms.NumberInput(attrs={"class": "form-control", "style": "width: 75%"}))
+    address = forms.CharField(required=True, widget=forms.TextInput(attrs={"class": "form-control", "style": "width: 200%"}))
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', "style": "width: 150%"}),
+        }
+        help_texts = {'username': None}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        profile = self.instance
+        selected_user = profile.user
+
+        self.fields["username"].initial = selected_user.username
+        self.fields["first_name"].initial = selected_user.first_name
+        self.fields["last_name"].initial = selected_user.last_name
+        self.fields["email"].initial = selected_user.email
+        self.fields["phone"].initial = profile.phone
+        self.fields["address"].initial = profile.address
+
+
+

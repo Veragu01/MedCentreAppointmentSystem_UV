@@ -4,7 +4,8 @@ from PikiOraMedicalCentre.views import home, appointments, appointment_detail, a
     appointment_delete, timeslots, timeslot_detail, timeslot_create, timeslot_delete, register, register_view, \
     AppointmentList_Generic, AppointmentDetail_Generic, AppointmentCreate_Generic, AppointmentUpdate_Generic, \
     AppointmentDelete_Generic, TimeslotList_Generic, TimeslotDetail_Generic, TimeslotCreate_Generic, \
-    TimeslotDelete_Generic, get_timeslots, available_time_slots, RegisterView_Generic, DoctorList_Generic
+    TimeslotDelete_Generic, get_timeslots, available_time_slots, RegisterView_Generic, DoctorList_Generic, \
+    DoctorDetail_Generic, DoctorDelete_Generic, DoctorCreate_Generic, register_doctor, DoctorUpdate_Generic
 
 urlpatterns = [
     path("", home, name='home'),
@@ -35,8 +36,17 @@ urlpatterns = [
 
     path("register/", register, name="register"),
 
+    path("register_doctor/", register_doctor, name="register_doctor"),
+
     path("accounts/", include("django.contrib.auth.urls")),
 
     path("doctors/", DoctorList_Generic.as_view(), name="doctors"),
 
+    path("doctor_details/<int:pk>/", DoctorDetail_Generic.as_view(), name="doctor_details"),
+
+    path("doctor_delete/<int:pk>/", DoctorDelete_Generic.as_view(), name="doctor_delete"),
+
+    path("doctor_create/", DoctorCreate_Generic.as_view(), name="doctor_create"),
+
+    path("doctor_update/<int:pk>/", DoctorUpdate_Generic.as_view(), name="doctor_update"),
 ]

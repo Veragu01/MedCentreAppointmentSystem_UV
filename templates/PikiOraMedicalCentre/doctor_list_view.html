@@ -1,0 +1,25 @@
+{% extends "../base.html" %}
+{% block title %}
+    Manage Doctors
+{% endblock %}
+{% block content %}
+    <h1 style="margin: 20px;">Manage Doctors</h1>
+    <p style="margin-left: 20px;">
+        {% if user.is_authenticated and "Administrator" in user.groups.all|join:"," %}
+                {% for doctor in object_list %}
+                    <p style="margin-left: 20px;">
+                        Dr: {{ doctor.user.first_name }} {{ doctor.user.last_name }}
+                        <button class="btn btn-primary" type="submit">
+                            <a class="nav-link active" aria-current="page" href="{% url 'doctor_details' doctor.pk %}">View</a>
+                        </button>
+                    </p>
+                {% endfor %}
+        {% endif %}
+
+    </p>
+    <p style="margin-left: 20px;">
+        <button class="btn btn-primary" type="submit">
+            <a class="nav-link active" aria-current="page" href="{% url 'doctor_create' %}">Create New Doctor</a>
+        </button>
+    </p>
+{% endblock %}

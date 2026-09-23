@@ -1,0 +1,17 @@
+{% extends '../base.html' %}
+{% block title %}
+    Register Doctor
+{% endblock %}
+{% block content %}
+    <h1 style="margin: 20px;" >Register Doctor</h1>
+    {% if user.is_authenticated  %}
+        {% if "Administrators" in user.groups.all|join:","  %}
+            <form style="margin: 20px;" method="post" action="{% url 'register_doctor' %}">
+                {% csrf_token %}
+                <table>{{ form.as_table }}</table>
+                <button style="margin-top: 20px;" class="btn btn-primary" type="submit">Register</button>
+                <a style="margin-top: 20px;" class="btn btn-secondary" href="{% url 'doctors' %}">Cancel</a>
+            </form>
+        {% endif %}
+    {% endif %}
+{% endblock %}
