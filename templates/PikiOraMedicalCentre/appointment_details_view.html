@@ -4,7 +4,7 @@
 {% endblock %}
 {% block content %}
     {% if user.is_authenticated %}
-        {% if user == appointment.patient or "Administrators" in user.groups.all|join:"," %}
+        {% if user == appointment.patient or user == appointment.doctor or "Administrators" in user.groups.all|join:"," %}
             <h1 style="margin: 20px;">Appointment Details for  {{ object.patient }}</h1>
             <div style="margin-left: 20px;">
                 <p>

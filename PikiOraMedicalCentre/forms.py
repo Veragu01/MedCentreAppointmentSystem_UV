@@ -117,4 +117,36 @@ class UserUpdateForm(forms.ModelForm):
         self.fields["address"].initial = profile.address
 
 
+class CreateTimeSlotFormDoctor(forms.ModelForm):
+    class Meta:
+        model = TimeSlot
+        fields = ['date', 'time']
 
+        widgets = {
+            'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+        }
+
+
+
+class CreateTimeSlotFormAdmin(forms.ModelForm):
+    class Meta:
+        model = TimeSlot
+        fields = ['doctor', 'date', 'time']
+
+        widgets = {
+            'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'doctor': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+class TimeSlotUpdateForm(forms.ModelForm):
+    class Meta:
+        model = TimeSlot
+        fields = ['date', 'time', 'is_available']
+
+        widgets = {
+            'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'is_available': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }

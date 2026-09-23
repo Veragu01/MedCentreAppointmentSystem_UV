@@ -1,0 +1,39 @@
+{% extends "../base.html" %}
+{% block title %}
+    Timeslot Details
+{% endblock %}
+{% block content %}
+    {% if user.is_authenticated %}
+        {% if user == object.doctor or "Administrators" in user.groups.all|join:"," %}
+            <h1 style="margin: 20px;">Timeslot Details</h1>
+            <div style="margin-left: 20px;">
+                <p>
+                    Doctor: Dr. {{ object.doctor.first_name }} {{ object.doctor.last_name }}
+                </p>
+                <p>
+                    Date: {{ object.date }}
+                </p>
+                <p>
+                    Time: {{ object.time }}
+                </p>
+                <p>
+                    Is Available: {{ object.is_available }}
+                </p>
+                <p>
+                    {% if not object.is_available %}
+                        {% for appointment in object.appointment_timeslot.all %}
+                            Appointment with: {{ appointment.patient.first_name }} {{ appointment.patient.last_name }}
+                        {% endfor %}
+                    {% endif %}
+                </p>
+                <button class="btn btn-primary" type="submit">
+                    <a class="nav-link active" aria-current="page" href="{% url 'timeslots' %}">Edit</a>
+                </button>
+                <button class="btn btn-danger" type="submit">
+                    <a class="nav-link active" aria-current="page" href="{% url 'timeslot_delete' object.pk %}">Delete</a>
+                </button>
+                <a style="margin-left: 20px;" class="btn btn-secondary" href="{% url 'timeslots' %}">Timeslots</a>
+            </div>
+        {% endif %}
+    {% endif %}
+{% endblock %}

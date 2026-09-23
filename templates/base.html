@@ -48,7 +48,19 @@
                                   <li class="nav-item">
                                   <a class="nav-link active" aria-current="page" href="{% url 'doctors' %}">Manage Doctors</a>
                               </li>
+                              <li>
+                              <li class="nav-item">
+                                  <a class="nav-link active" aria-current="page" href="{% url 'timeslots' %}">Manage Timeslots</a>
+                              </li>
+                              <li class="nav-item">
+                                  <a class="nav-link active" aria-current="page" href="{% url 'patients' %}">Manage Patients</a>
+                              </li>
                             {% endif %}
+                      {% if "Doctors" in user.groups.all|join:"," %}
+                              <li class="nav-item">
+                                  <a class="nav-link active" aria-current="page" href="{% url 'timeslots' %}">Manage Timeslots</a>
+                              </li>
+                        {% endif %}
                               <li class="nav-item">
                                   <form method="post" action="{% url 'logout' %}">
                                       {% csrf_token %}

@@ -1,0 +1,34 @@
+{% extends "../base.html" %}
+{% block title %}
+    Manage Timeslots
+{% endblock %}
+{% block content %}
+<h1 style="margin: 20px;">Manage Timeslots</h1>
+<p style="margin-left: 20px;">
+        {% for TimeSlot in object_list %}
+            {% if user.is_authenticated %}
+                {% if user == TimeSlot.doctor or "Administrators" in user.groups.all|join:"," %}
+                    <p style="margin-left: 20px;">
+                        Dr. {{ TimeSlot.doctor.first_name }} {{ TimeSlot.doctor.last_name }}: {{ TimeSlot.date }}; {{ TimeSlot.time }}
+                        <button class="btn btn-primary" type="submit">
+                            <a class="nav-link active" aria-current="page" href="{% url 'timeslot_details' TimeSlot.pk %}">View</a>
+                        </button>
+                        <button class="btn btn-secondary" type="submit">
+                            <a class="nav-link active" aria-current="page" href="{% url 'timeslot_update' TimeSlot.pk %}">Edit</a>
+                        </button>
+                    </p>
+                {% endif %}
+            {% endif %}
+
+        {% endfor %}
+    </p>
+    <p style="margin-left: 20px;">
+        {% if user.is_authenticated %}
+            {% if "Doctors" in user.groups.all|join:"," or "Administrators" in user.groups.all|join:"," %}
+                <button class="btn btn-primary" type="submit">
+                    <a class="nav-link active" aria-current="page" href="{% url 'timeslot_create' %}">Create Timeslot</a>
+                </button>
+            {% endif %}
+        {% endif %}
+    </p>
+{% endblock %}

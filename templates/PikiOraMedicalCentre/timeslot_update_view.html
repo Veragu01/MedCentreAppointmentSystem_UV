@@ -1,0 +1,25 @@
+{% extends '../base.html' %}
+{% block title %}
+    Update Timeslot
+{% endblock %}
+{% block content %}
+
+    <h1 style="margin: 20px;">Update Timeslot</h1>
+    <div style="margin-left: 20px;">
+        {% if user.is_authenticated %}
+            {% if "Doctors" in user.groups.all|join:"," or "Administrators" in user.groups.all|join:"," %}
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <table>{{ form.as_table }}</table>
+
+                    <button style="margin-top: 20px;" class="btn btn-primary" type="submit">Update Timeslot</button>
+                    <a style="margin-top: 20px;" class="btn btn-secondary" href="{% url 'timeslots' %}">Cancel</a>
+                </form>
+            {% endif %}
+        {% else %}
+            <p>You are not logged in
+                <a href="{% url 'home' %}">Login</a>
+            </p>
+        {% endif %}
+    </div>
+{% endblock %}

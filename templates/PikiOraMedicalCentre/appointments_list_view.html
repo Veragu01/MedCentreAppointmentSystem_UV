@@ -7,7 +7,7 @@
     <p style="margin-left: 20px;">
         {% for appointment in object_list %}
             {% if user.is_authenticated %}
-                {% if user == appointment.patient or "Administrators" in user.groups.all|join:"," %}
+                {% if user == appointment.patient or user == appointment.doctor or "Administrators" in user.groups.all|join:"," %}
                     <p style="margin-left: 20px;">
                         {{ appointment.reason }}
                         <button class="btn btn-primary" type="submit">
@@ -20,8 +20,12 @@
         {% endfor %}
     </p>
     <p style="margin-left: 20px;">
-        <button class="btn btn-primary" type="submit">
-            <a class="nav-link active" aria-current="page" href="{% url 'appointment_create' %}">Create Appointment</a>
-        </button>
+        {% if user.is_authenticated %}
+            {% if user == appointment.patient or "Administrators" in user.groups.all|join:"," %}
+                <button class="btn btn-primary" type="submit">
+                    <a class="nav-link active" aria-current="page" href="{% url 'appointment_create' %}">Create Appointment</a>
+                </button>
+            {% endif %}
+        {% endif %}
     </p>
 {% endblock %}

@@ -5,7 +5,8 @@ from PikiOraMedicalCentre.views import home, appointments, appointment_detail, a
     AppointmentList_Generic, AppointmentDetail_Generic, AppointmentCreate_Generic, AppointmentUpdate_Generic, \
     AppointmentDelete_Generic, TimeslotList_Generic, TimeslotDetail_Generic, TimeslotCreate_Generic, \
     TimeslotDelete_Generic, get_timeslots, available_time_slots, RegisterView_Generic, DoctorList_Generic, \
-    DoctorDetail_Generic, DoctorDelete_Generic, DoctorCreate_Generic, register_doctor, DoctorUpdate_Generic
+    DoctorDetail_Generic, DoctorDelete_Generic, DoctorCreate_Generic, register_doctor, DoctorUpdate_Generic, \
+    TimeslotUpdate_Generic, PatientList_Generic
 
 urlpatterns = [
     path("", home, name='home'),
@@ -25,6 +26,8 @@ urlpatterns = [
     path("timeslot_details/<int:pk>/", TimeslotDetail_Generic.as_view(), name="timeslot_details"),
 
     path("timeslot_create/", TimeslotCreate_Generic.as_view(), name="timeslot_create"),
+
+    path("timeslot_update/<int:pk>/", TimeslotUpdate_Generic.as_view(), name="timeslot_update"),
 
     path("timeslot_delete/<int:pk>/", TimeslotDelete_Generic.as_view(), name="timeslot_delete"),
 
@@ -49,4 +52,6 @@ urlpatterns = [
     path("doctor_create/", DoctorCreate_Generic.as_view(), name="doctor_create"),
 
     path("doctor_update/<int:pk>/", DoctorUpdate_Generic.as_view(), name="doctor_update"),
+
+    path("patients/", PatientList_Generic.as_view(), name='patient_list')
 ]

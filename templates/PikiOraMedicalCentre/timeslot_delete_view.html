@@ -1,0 +1,19 @@
+{% extends '../base.html' %}
+{% block title %}
+   Delete Timeslot
+{% endblock %}
+{% block content %}
+    <h1>Delete Timeslot</h1>
+        {% if user.is_authenticated %}
+            {% if user == timeslot.doctor or "Administrators" in user.groups.all|join:"," %}
+                <p>Are you sure you want to delete this Timeslot?</p>
+                <p>This will also delete all appointments associated with this timeslot.</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <h3>{{ timeslot.date }}; {{ timeslot.time }}</h3>
+                    <button class="btn btn-danger" type="submit">Delete</button>
+                    <a class="btn btn-secondary" href="{% url 'timeslots' %}">Cancel</a>
+                </form>
+            {% endif %}
+        {% endif %}
+{% endblock %}
