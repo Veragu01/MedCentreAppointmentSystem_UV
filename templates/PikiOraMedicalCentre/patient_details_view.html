@@ -1,0 +1,52 @@
+{% extends "../base.html" %}
+{% block title %}
+    Patient Details
+{% endblock %}
+{% block content %}
+    {% if user.is_authenticated %}
+        {% if "Administrators" in user.groups.all|join:"," %}
+            <h1 style="margin: 20px;">Patient Details</h1>
+            <div style="margin-left: 20px;">
+                <p>
+                    <strong>Username:</strong> {{ object.user.username }}
+                </p>
+                <p>
+                    <strong>First Name:</strong> {{ object.user.first_name }}
+                </p>
+                <p>
+                    <strong>Last Name:</strong> {{ object.user.last_name }}
+                </p>
+                <p>
+                    <strong>Email:</strong> {{ object.user.email }}
+                </p>
+                <p>
+                    <strong>Phone Number:</strong> {{ object.user.profile.phone }}
+                </p>
+                <p>
+                    <strong>Address:</strong> {{ object.user.profile.address }}
+                </p>
+
+                <p>
+                    Upcoming Appointments:
+                    {% if not object.patient_appointments.count %}
+                        {% for appointment in object.patient_appointments.all %}
+                            Appointment: {{ appointment.reason }} {{ appointment.time_slot }}
+                        {% endfor %}
+                    {% else %}
+                        No appointments
+                    {% endif %}
+                </p>
+                <button class="btn btn-primary" type="submit">
+                    <a class="nav-link active" aria-current="page" href="{% url 'patient_update' object.pk %}">Edit</a>
+                </button>
+                <button class="btn btn-danger" type="submit">
+                    <a class="nav-link active" aria-current="page" href="{% url 'patient_delete' object.pk %}">Delete</a>
+                </button>
+                <button style="margin-left: 20px;" class="btn btn-secondary" type="submit">
+                    <a class="nav-link active" aria-current="page" href="{% url 'patients' %}">Manage Patients</a>
+                </button>
+            </div>
+
+        {% endif %}
+    {% endif %}
+{% endblock %}

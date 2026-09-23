@@ -1,0 +1,24 @@
+{% extends "../base.html" %}
+{% block title %}
+    Patients List
+{% endblock %}
+{% block content %}
+    <h1 style="margin: 20px;">All Patients</h1>
+    <div style="margin-left: 20px;">
+        {% if user.is_authenticated %}
+            {% if "Administrators" in user.groups.all|join:"," %}
+                {% for patient in object_list %}
+                    <p style="margin-left: 20px;">
+                        {% if "Patients" in patient.user.groups.all|join:"," %}
+                            {{ patient.user.first_name }} {{ patient.user.last_name }}
+                            <button class="btn btn-primary" type="submit">
+                                <a class="nav-link active" aria-current="page" href="{% url 'patient_details' patient.pk %}">View</a>
+                            </button>
+                        {% endif %}
+                    </p>
+                {% endfor %}
+            {% endif %}
+        {% endif %}
+    </div>
+
+{% endblock %}
