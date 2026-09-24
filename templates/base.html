@@ -62,9 +62,11 @@
                               </li>
                         {% endif %}
                               <li class="nav-item">
+                                  <p style="margin: 8px;">{{ user.first_name }} {{ user.last_name }}</p>
+                              </li>
+                              <li class="nav-item">
                                   <form method="post" action="{% url 'logout' %}">
                                       {% csrf_token %}
-                                      {{ user.first_name }} {{ user.last_name }}
                                       <button class="btn btn-primary" type="submit">Logout</button>
                                   </form>
                               </li>
@@ -74,7 +76,7 @@
                 </div>
             </div>
         </nav>
-    </header>
+    </header >
     {% block content %}
     {% endblock %}
     <footer>
