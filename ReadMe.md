@@ -1,12 +1,17 @@
-# Sample Data for login
-Login requires username and password. All passwords are the same
+# Piki Ora Medical Centre Appointment System - By Uly Veragos
+## Access Links
+- Render: https://medcentreappointmentsystem-uv.onrender.com/ 
+- GitHub: https://github.com/Veragu01/MedCentreAppointmentSystem_UV \
+(I have added songlei1979 as a collaborator) \
+Please get in touch if you have any issues accessing the application/repo
 
 
+## Sample Data for login
 ### Administrators:
 - **admin**
   - first_name: admin
   - last_name: 
-  - password: Password123!
+  - password: Password123
   - email: admin@email.com
   
 ### Doctors:
