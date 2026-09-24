@@ -1,0 +1,12 @@
+{% extends "../base.html" %}
+{% block title %}
+    Home
+{% endblock %}
+{% block content %}
+    <h1 style="margin: 20px;">Piki Ora Medical Centre</h1>
+    {% if user.is_authenticated %}
+        <p style="margin: 20px;">Welcome {{ user.first_name }} {{ user.last_name }}</p>
+    {% else %}
+        <p style="margin: 20px;">You are not logged in</p>
+    {% endif %}
+{% endblock %}
