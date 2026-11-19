@@ -64,6 +64,7 @@ MIDDLEWARE = [
 ]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000"
+    "https://react-frontend-app-ap7z.onrender.com"
 ]
 
 REST_FRAMEWORK = {
