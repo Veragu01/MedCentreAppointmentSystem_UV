@@ -1,12 +1,23 @@
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
 
+from rest_framework import serializers, generics
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.permissions import IsAuthenticated, BasePermission
+from rest_framework.response import Response
+
 from PikiOraMedicalCentre.forms import AppointmentCreateForm, AppointmentUpdateForm, UserCreationForm, UserUpdateForm, \
     CreateTimeSlotFormDoctor, CreateTimeSlotFormAdmin, TimeSlotUpdateForm
 from PikiOraMedicalCentre.models import Appointment, TimeSlot, Profile
+from PikiOraMedicalCentre.serializers import DoctorSerializer, AppointmentSerializer, TimeSlotSerializer, \
+    TimeSlotCreateSerializer, AppointmentCreateSerializer, AdminUserSerializer
 
 
 # Create your views here.
@@ -352,3 +363,225 @@ class DoctorUpdate_Generic(UpdateView):
         profile.save()
 
         return redirect(self.success_url)
+
+class DoctorListAPIView(generics.ListAPIView):
+    serializer_class = DoctorSerializer
+
+    def get_queryset(self):
+        doctors = Profile.objects.select_related("user").filter(user__groups__name='Doctors').distinct()
+        return doctors
+
+class AppointmentListAPIView(generics.ListAPIView):
+    authentication_classes = [TokenAuthentication]
+    serializer_class = AppointmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.groups.filter(name="Administrators").exists():
+            return Appointment.objects.select_related(
+                "patient", "doctor", "time_slot"
+            ).all()
+
+        if user.groups.filter(name="Doctors").exists():
+            return Appointment.objects.filter(doctor=user).select_related(
+                "patient", "doctor", "time_slot"
+            )
+
+        # Default to patient access: only their own appointments.
+        return Appointment.objects.filter(patient=user).select_related(
+            "patient", "doctor", "time_slot"
+        )
+
+
+class AppointmentDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = AppointmentSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.groups.filter(name="Administrators").exists():
+            return Appointment.objects.select_related("patient", "doctor", "time_slot")
+
+        if user.groups.filter(name="Doctors").exists():
+            return Appointment.objects.filter(doctor=user).select_related("patient", "doctor", "time_slot")
+
+        return Appointment.objects.filter(patient=user).select_related("patient", "doctor", "time_slot")
+
+    def perform_destroy(self, instance):
+        with transaction.atomic():
+            appointment = Appointment.objects.select_for_update().get(pk=instance.pk)
+            slot = TimeSlot.objects.select_for_update().get(pk=appointment.time_slotid)
+            slot.is_available = True
+            slot.save(update_fields=["is_available"])
+            appointment.delete()
+
+class TimeslotAPIView(generics.ListAPIView):
+    serializer_class = TimeSlotSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get_queryset(self):
+        user = self.request.user
+        doctor_id = self.request.query_params.get("doctor")
+        date = self.request.query_params.get("date")
+
+        slots = TimeSlot.objects.select_related("doctor")
+
+        # print("All slots:", slots.count())
+        # print("Available slots:", slots.filter(is_available=True).count())
+        # print("Requested doctor:", repr(doctor_id))
+        # print("Requested date:", repr(date))
+
+        print(
+            "Doctor IDs on slots:",
+            list(
+                TimeSlot.objects.values_list("doctor_id", flat=True)
+                .distinct()
+            )
+        )
+        print(
+            "Slots for doctor 8:",
+            list(
+                TimeSlot.objects.filter(doctor_id=8)
+                .values("id", "date", "time", "is_available")
+            )
+        )
+
+        if user.groups.filter(name="Administrators").exists():
+            pass
+        elif user.groups.filter(name="Doctors").exists():
+            slots = slots.filter(doctor=user)
+
+        elif user.groups.filter(name="Patients").exists():
+            slots = slots.filter(is_available=True)
+        else:
+            return TimeSlot.objects.none()
+        if doctor_id and not user.groups.filter(name="Doctors").exists():
+            slots = slots.filter(doctor_id=doctor_id)
+            print("After doctor filter:", slots.count())
+
+
+        if date:
+            slots = slots.filter(date=date)
+            print("After date filter:", slots.count())
+
+        print("Final matches:", list(slots.values("id", "doctor_id", "date", "time", "is_available")))
+        return slots.order_by("time")
+    # def get_queryset(self):
+    #     # timeslotRequest = TimeSlot.objects.filter(is_available=True).select_related("doctor").distinct()
+    #     doctor_id = self.request.query_params.get("doctor")
+    #     # date = self.request.query_params.get("date")
+    #     available_slots = TimeSlot.objects.filter(is_available=True)
+    #     user = self.request.user
+    #
+    #     if user.groups.filter(name="Doctors").exists():
+    #         return available_slots.filter(doctor_id=user).order_by("date", "time")
+    #
+    #     if user.groups.filter(name="Administrators").exists():
+    #         return available_slots.order_by("date", "time")
+    #
+    #     return TimeSlot.objects.none()
+
+        # if not doctor_id or not date:
+        #     return timeslotRequest.none()
+        # return timeslotRequest.filter(doctor_id=doctor_id, date=date).order_by("time")
+        # # if date:
+        # #     timeslotRequest = timeslotRequest.filter(date=date)
+        # # return timeslotRequest.order_by("date", "time")
+
+
+
+class TimeslotDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = TimeSlotSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        slots = TimeSlot.objects.select_related("doctor")
+
+        if user.groups.filter(name="Administrators").exists():
+            return slots
+
+        if user.groups.filter(name="Doctors").exists():
+            return slots.filter(doctor=user)
+
+        return TimeSlot.objects.none()
+
+    def perform_destroy(self, instance):
+        instance.delete()
+
+
+class CustomAuthToken(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.validated_data["user"]
+        token, _ = Token.objects.get_or_create(user=user)
+        groups = set(user.groups.values_list("name", flat=True))
+
+        if "Administrators" in groups:
+            user_type = "administrator"
+        elif "Doctors" in groups:
+            user_type = "doctor"
+        elif "Patients" in groups:
+            user_type = "patient"
+        else:
+            user_type = ""
+
+        return Response({"token": token.key, "user_type": user_type, "first_name": user.first_name, "last_name": user.last_name,})
+
+
+class TimeslotCreateAPIView(generics.CreateAPIView):
+    serializer_class = TimeSlotCreateSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        if not self.request.user.groups.filter(name="Doctors").exists():
+            raise PermissionDenied("Only doctors can create timeslots.")
+
+        serializer.save(doctor=self.request.user, is_available=True)
+
+class AppointmentCreateAPIView(generics.CreateAPIView):
+    serializer_class = AppointmentCreateSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(patient=self.request.user)
+
+
+class IsAdministrator(BasePermission):
+    def has_permission(self, request, view):
+        return (
+            request.user.is_authenticated
+            and request.user.groups.filter(name="Administrators").exists()
+        )
+
+
+class AdminUserListCreateAPIView(generics.ListCreateAPIView):
+    serializer_class = AdminUserSerializer
+    permission_classes = [IsAdministrator]
+    authentication_classes = [TokenAuthentication]
+
+    def get_queryset(self):
+        return User.objects.filter(
+            groups__name__in=["Doctors", "Patients"]
+        ).distinct()
+
+
+class AdminUserDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = AdminUserSerializer
+    permission_classes = [IsAdministrator]
+    authentication_classes = [TokenAuthentication]
+
+    def get_queryset(self):
+        return User.objects.filter(
+            groups__name__in=["Doctors", "Patients"]
+        ).distinct()

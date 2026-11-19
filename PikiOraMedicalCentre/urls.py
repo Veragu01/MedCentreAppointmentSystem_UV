@@ -1,4 +1,9 @@
 from django.urls import path, include
+from rest_framework.authtoken.views import obtain_auth_token
+
+from .views import DoctorListAPIView, AppointmentListAPIView, AppointmentDetailAPIView, TimeslotAPIView, \
+    CustomAuthToken, TimeslotDetailAPIView, TimeslotCreateAPIView, AppointmentCreateAPIView, AdminUserListCreateAPIView, \
+    AdminUserDetailAPIView
 
 from PikiOraMedicalCentre.views import home, appointments, appointment_detail, appointment_create, appointment_update, \
     appointment_delete, timeslots, timeslot_detail, timeslot_create, timeslot_delete, register, register_view, \
@@ -60,4 +65,16 @@ urlpatterns = [
     path("patient_update/<int:pk>/", PatientUpdate_Generic.as_view(), name="patient_update"),
 
     path("patient_delete/<int:pk>/", PatientDelete_Generic.as_view(), name="patient_delete"),
+
+
+    path("api/doctors/", DoctorListAPIView.as_view(), name="api_doctors"),
+    path("api/login/", CustomAuthToken.as_view(), name="api_login"),
+    path("api/appointments/<int:pk>/", AppointmentDetailAPIView.as_view(), name="api_appointmentDetail"),
+    path("api/appointments/", AppointmentListAPIView.as_view(), name="api_appointments"),
+    path("api/appointments/create/", AppointmentCreateAPIView.as_view(), name="api_appointment_create"),
+    path("api/timeslots/", TimeslotAPIView.as_view(), name="api_timeslots"),
+    path("api/timeslots/<int:pk>/", TimeslotDetailAPIView.as_view(), name="api_timeslotsDetails"),
+    path("api/timeslots/create/", TimeslotCreateAPIView.as_view(), name="api_timeslot_create"),
+    path("api/admin/users/", AdminUserListCreateAPIView.as_view(), name="api_admin_listcreate_user"),
+    path("api/admin/users/<int:pk>/", AdminUserDetailAPIView.as_view(), name="api_admin_userdetails"),
 ]

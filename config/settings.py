@@ -15,6 +15,7 @@ import os
 
 from django.conf.global_settings import STORAGES
 from dotenv import load_dotenv
+from rest_framework.templatetags import rest_framework
 
 load_dotenv()
 
@@ -44,11 +45,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'PikiOraMedicalCentre',
+    "rest_framework",
+    "rest_framework.authtoken",
+    "corsheaders"
+
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -56,6 +62,15 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000"
+]
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+    ],
+}
 
 ROOT_URLCONF = 'config.urls'
 
