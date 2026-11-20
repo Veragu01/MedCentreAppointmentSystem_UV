@@ -414,7 +414,7 @@ class AppointmentDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     def perform_destroy(self, instance):
         with transaction.atomic():
             appointment = Appointment.objects.select_for_update().get(pk=instance.pk)
-            slot = TimeSlot.objects.select_for_update().get(pk=appointment.time_slotid)
+            slot = TimeSlot.objects.select_for_update().get(pk=appointment.time_slot_id)
             slot.is_available = True
             slot.save(update_fields=["is_available"])
             appointment.delete()
